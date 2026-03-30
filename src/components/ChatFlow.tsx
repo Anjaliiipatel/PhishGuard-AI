@@ -1,11 +1,29 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, ArrowRight, Check, RotateCcw, Shield, ShieldAlert, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, RotateCcw, Shield, ShieldAlert, ShieldCheck, Gauge } from "lucide-react";
 import { ThreatScenario, RecoveryStep } from "@/data/threatScenarios";
 
 interface ChatFlowProps {
   scenario: ThreatScenario;
   onBack: () => void;
   onReset: () => void;
+}
+
+type RiskLevel = "low" | "moderate" | "high" | "critical";
+
+const riskConfig: Record<RiskLevel, { label: string; color: string; bg: string; border: string; percent: number; description: string }> = {
+  low: { label: "LOW RISK", color: "text-primary", bg: "bg-primary", border: "border-primary/40", percent: 25, description: "Minimal exposure detected. Follow preventive steps below." },
+  moderate: { label: "MODERATE RISK", color: "text-accent", bg: "bg-accent", border: "border-accent/40", percent: 50, description: "Some exposure identified. Complete the recovery steps promptly." },
+  high: { label: "HIGH RISK", color: "text-warning", bg: "bg-warning", border: "border-warning/40", percent: 75, description: "Significant exposure detected. Act on critical steps immediately." },
+  critical: { label: "CRITICAL RISK", color: "text-destructive", bg: "bg-destructive", border: "border-destructive/40", percent: 95, description: "Severe compromise likely. Execute all critical steps NOW." },
+};
+
+function assessRisk(steps: RecoveryStep[]): RiskLevel {
+  const criticalCount = steps.filter(s => s.priority === "critical").length;
+  const highCount = steps.filter(s => s.priority === "high").length;
+  if (criticalCount >= 4) return "critical";
+  if (criticalCount >= 2) return "high";
+  if (criticalCount >= 1 || highCount >= 2) return "moderate";
+  return "low";
 }
 
 type Message = {
