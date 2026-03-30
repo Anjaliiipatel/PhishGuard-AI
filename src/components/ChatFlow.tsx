@@ -1,11 +1,29 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, ArrowRight, Check, RotateCcw, Shield, ShieldAlert, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, RotateCcw, Shield, ShieldAlert, ShieldCheck, Gauge } from "lucide-react";
 import { ThreatScenario, RecoveryStep } from "@/data/threatScenarios";
 
 interface ChatFlowProps {
   scenario: ThreatScenario;
   onBack: () => void;
   onReset: () => void;
+}
+
+type RiskLevel = "low" | "moderate" | "high" | "critical";
+
+const riskConfig: Record<RiskLevel, { label: string; color: string; bg: string; border: string; percent: number; description: string }> = {
+  low: { label: "LOW RISK", color: "text-primary", bg: "bg-primary", border: "border-primary/40", percent: 25, description: "Minimal exposure detected. Follow preventive steps below." },
+  moderate: { label: "MODERATE RISK", color: "text-accent", bg: "bg-accent", border: "border-accent/40", percent: 50, description: "Some exposure identified. Complete the recovery steps promptly." },
+  high: { label: "HIGH RISK", color: "text-warning", bg: "bg-warning", border: "border-warning/40", percent: 75, description: "Significant exposure detected. Act on critical steps immediately." },
+  critical: { label: "CRITICAL RISK", color: "text-destructive", bg: "bg-destructive", border: "border-destructive/40", percent: 95, description: "Severe compromise likely. Execute all critical steps NOW." },
+};
+
+function assessRisk(steps: RecoveryStep[]): RiskLevel {
+  const criticalCount = steps.filter(s => s.priority === "critical").length;
+  const highCount = steps.filter(s => s.priority === "high").length;
+  if (criticalCount >= 4) return "critical";
+  if (criticalCount >= 2) return "high";
+  if (criticalCount >= 1 || highCount >= 2) return "moderate";
+  return "low";
 }
 
 type Message = {
@@ -154,6 +172,49 @@ const ChatFlow = ({ scenario, onBack, onReset }: ChatFlowProps) => {
         {/* Recovery Plan */}
         {showRecovery && (
           <div className="space-y-4 animate-fade-in-up pt-2">
+            {/* Risk Assessment Summary */}
+            {(() => {
+              const risk = assessRisk(recoverySteps);
+              const config = riskConfig[risk];
+              return (
+                <div className={`border rounded-lg p-5 ${config.border} bg-card`}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Gauge className={`w-5 h-5 ${config.color}`} />
+                    <h3 className="font-mono font-semibold text-sm">Threat Assessment</h3>
+                  </div>
+                  {/* Risk gauge */}
+                  <div className="mb-3">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className={`text-xs font-mono font-bold ${config.color}`}>{config.label}</span>
+                      <span className="text-xs text-muted-foreground font-mono">{config.percent}%</span>
+                    </div>
+                    <div className="w-full bg-secondary rounded-full h-2.5 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${config.bg} transition-all duration-1000 ease-out`}
+                        style={{ width: `${config.percent}%` }}
+                      />
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{config.description}</p>
+                  {/* Stats */}
+                  <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-border">
+                    <div className="text-center">
+                      <span className="text-lg font-mono font-bold text-destructive">{recoverySteps.filter(s => s.priority === "critical").length}</span>
+                      <p className="text-[10px] text-muted-foreground font-mono mt-0.5">CRITICAL</p>
+                    </div>
+                    <div className="text-center">
+                      <span className="text-lg font-mono font-bold text-warning">{recoverySteps.filter(s => s.priority === "high").length}</span>
+                      <p className="text-[10px] text-muted-foreground font-mono mt-0.5">HIGH</p>
+                    </div>
+                    <div className="text-center">
+                      <span className="text-lg font-mono font-bold text-primary">{recoverySteps.filter(s => s.priority === "medium").length}</span>
+                      <p className="text-[10px] text-muted-foreground font-mono mt-0.5">MEDIUM</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
             <div className="flex items-center gap-2 border-b border-border pb-3">
               <ShieldCheck className="w-5 h-5 text-primary" />
               <h3 className="font-mono font-semibold">Recovery Plan</h3>
