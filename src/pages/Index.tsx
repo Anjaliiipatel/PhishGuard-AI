@@ -1,16 +1,76 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import { Shield, ShieldCheck, Terminal } from "lucide-react";
+import { threatScenarios } from "@/data/threatScenarios";
+import ThreatCard from "@/components/ThreatCard";
+import ChatFlow from "@/components/ChatFlow";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
+  const [selectedThreat, setSelectedThreat] = useState<string | null>(null);
+
+  const selectedScenario = threatScenarios.find((s) => s.id === selectedThreat);
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Scan line effect */}
+      <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden opacity-[0.03]">
+        <div className="w-full h-px bg-primary animate-scan-line" />
+      </div>
+
+      {!selectedScenario ? (
+        <div className="flex-1 flex flex-col">
+          {/* Hero */}
+          <header className="border-b border-border bg-card/30">
+            <div className="max-w-2xl mx-auto px-4 py-10 text-center">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <div className="p-2.5 rounded-lg bg-primary/10 border border-primary/20">
+                  <ShieldCheck className="w-7 h-7 text-primary" />
+                </div>
+              </div>
+              <h1 className="text-2xl md:text-3xl font-mono font-bold text-foreground mb-2 text-glow">
+                CyberGuard
+              </h1>
+              <p className="text-muted-foreground text-sm max-w-md mx-auto">
+                Detect, assess, and respond to cybersecurity threats with guided incident response
+              </p>
+              <div className="flex items-center justify-center gap-1.5 mt-3 text-xs text-muted-foreground font-mono">
+                <Terminal className="w-3 h-3" />
+                <span>Select a threat type to begin analysis</span>
+              </div>
+            </div>
+          </header>
+
+          {/* Threat Selection */}
+          <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-8">
+            <div className="space-y-3">
+              {threatScenarios.map((scenario) => (
+                <ThreatCard
+                  key={scenario.id}
+                  scenario={scenario}
+                  onSelect={setSelectedThreat}
+                />
+              ))}
+            </div>
+
+            {/* Footer info */}
+            <div className="mt-10 text-center">
+              <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground font-mono bg-secondary/50 px-3 py-1.5 rounded-full border border-border">
+                <Shield className="w-3 h-3 text-primary" />
+                All guidance runs locally — no data is sent externally
+              </div>
+            </div>
+          </main>
+        </div>
+      ) : (
+        <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full">
+          <ChatFlow
+            scenario={selectedScenario}
+            onBack={() => setSelectedThreat(null)}
+            onReset={() => setSelectedThreat(null)}
+          />
+        </div>
+      )}
     </div>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
