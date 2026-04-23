@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, ArrowRight, Check, RotateCcw, Shield, ShieldAlert, ShieldCheck, Gauge } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Download, RotateCcw, Shield, ShieldAlert, ShieldCheck, Gauge } from "lucide-react";
 import { ThreatScenario, RecoveryStep } from "@/data/threatScenarios";
+import { exportIncidentPDF } from "@/lib/exportPDF";
+import { toast } from "@/hooks/use-toast";
 
 interface ChatFlowProps {
   scenario: ThreatScenario;
@@ -223,8 +225,8 @@ const ChatFlow = ({ scenario, onBack, onReset }: ChatFlowProps) => {
               </span>
             </div>
 
-            {/* Toggle guided mode */}
-            <div className="flex gap-2">
+            {/* Toggle guided mode + Export */}
+            <div className="flex gap-2 items-center flex-wrap">
               <button
                 onClick={() => setGuidedMode(false)}
                 className={`text-xs px-3 py-1.5 rounded font-mono transition-colors ${
@@ -240,6 +242,31 @@ const ChatFlow = ({ scenario, onBack, onReset }: ChatFlowProps) => {
                 }`}
               >
                 Guided Mode
+              </button>
+              <button
+                onClick={() => {
+                  try {
+                    const risk = assessRisk(recoverySteps);
+                    const config = riskConfig[risk];
+                    exportIncidentPDF({
+                      scenario,
+                      answers,
+                      recoverySteps,
+                      risk,
+                      riskLabel: config.label,
+                      riskPercent: config.percent,
+                      riskDescription: config.description,
+                    });
+                    toast({ title: "PDF exported", description: "Your incident report has been downloaded." });
+                  } catch (e) {
+                    console.error(e);
+                    toast({ title: "Export failed", description: "Could not generate PDF.", variant: "destructive" });
+                  }
+                }}
+                className="ml-auto flex items-center gap-1.5 text-xs px-3 py-1.5 rounded font-mono border border-primary/40 text-primary hover:bg-primary/10 transition-colors"
+                aria-label="Export report as PDF"
+              >
+                <Download className="w-3.5 h-3.5" /> Export PDF
               </button>
             </div>
 
