@@ -1,4 +1,4 @@
-# PhishGuard AI
+# CyberGuard AI
 Developed a fully interactive web application that helps users detect, assess, and respond to common cybersecurity threats such as phishing emails, malicious links, account takeovers, scareware pop-ups, and potential malware infections.
 
 The application features:
