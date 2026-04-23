@@ -1,0 +1,4 @@
+project_id = "b59d15f2-12fc-4066-a972-622fe6aac331"
+
+[functions.chat]
+verify_jwt = false

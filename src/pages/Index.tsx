@@ -3,6 +3,7 @@ import { Shield, ShieldCheck, Terminal } from "lucide-react";
 import { threatScenarios } from "@/data/threatScenarios";
 import ThreatCard from "@/components/ThreatCard";
 import ChatFlow from "@/components/ChatFlow";
+import AIChat from "@/components/AIChat";
 
 const Index = () => {
   const [selectedThreat, setSelectedThreat] = useState<string | null>(null);
@@ -69,6 +70,8 @@ const Index = () => {
           />
         </div>
       )}
+
+      <AIChat />
     </div>
   );
 };
