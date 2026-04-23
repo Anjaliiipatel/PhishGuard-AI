@@ -4,6 +4,7 @@ import { threatScenarios } from "@/data/threatScenarios";
 import ThreatCard from "@/components/ThreatCard";
 import ChatFlow from "@/components/ChatFlow";
 import AIChat from "@/components/AIChat";
+import LinkAnalyzer from "@/components/LinkAnalyzer";
 
 const Index = () => {
   const [selectedThreat, setSelectedThreat] = useState<string | null>(null);
@@ -41,15 +42,24 @@ const Index = () => {
           </header>
 
           {/* Threat Selection */}
-          <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-8">
-            <div className="space-y-3">
-              {threatScenarios.map((scenario) => (
-                <ThreatCard
-                  key={scenario.id}
-                  scenario={scenario}
-                  onSelect={setSelectedThreat}
-                />
-              ))}
+          <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-8 space-y-8">
+            <LinkAnalyzer />
+
+            <div>
+              <div className="flex items-center gap-2 mb-3 text-xs font-mono text-muted-foreground uppercase tracking-wider">
+                <span className="h-px flex-1 bg-border" />
+                Threat scenarios
+                <span className="h-px flex-1 bg-border" />
+              </div>
+              <div className="space-y-3">
+                {threatScenarios.map((scenario) => (
+                  <ThreatCard
+                    key={scenario.id}
+                    scenario={scenario}
+                    onSelect={setSelectedThreat}
+                  />
+                ))}
+              </div>
             </div>
 
             {/* Footer info */}
